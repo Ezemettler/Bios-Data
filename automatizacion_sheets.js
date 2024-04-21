@@ -134,10 +134,11 @@ function Resultados() {
     resultadosSheet.getRange("A1").setValue("Mes");
     resultadosSheet.getRange("B1").setValue("Ingresos");
     resultadosSheet.getRange("C1").setValue("Egresos");
+    resultadosSheet.getRange("D1").setValue("Materias primas");
   }
   
   // Limpiar valores anteriores
-  resultadosSheet.getRange("B2:C" + lastRow).clear();
+  resultadosSheet.getRange("B2:D" + lastRow).clear();
   
   // Obtener datos de ventas y egresos
   var ventasData = ventasSheet.getDataRange().getValues();
@@ -150,17 +151,21 @@ function Resultados() {
     var mes = fechaVenta.getFullYear() + "." + (fechaVenta.getMonth() + 1);
     var totalVenta = Number(ventasData[i][21]); // Considerando que el total de la venta está en la columna 21 de la hoja "Ventas"
     if (!isNaN(totalVenta)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0 });
+      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0 });
       resultados.get(mes).ingresos += totalVenta;
     }
   }
   for (var i = 1; i < egresosData.length; i++) {
     var fechaEgreso = new Date(egresosData[i][1]); // Considerando que la fecha de pago está en la segunda columna de la hoja "Egresos"
     var mes = fechaEgreso.getFullYear() + "." + (fechaEgreso.getMonth() + 1);
+    var categoria = egresosData[i][2]; // Considerando que la categoría está en la tercera columna de la hoja "Egresos"
     var totalEgreso = Number(egresosData[i][4]); // Considerando que el total del egreso está en la columna 4 de la hoja "Egresos"
     if (!isNaN(totalEgreso)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0 });
+      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0 });
       resultados.get(mes).egresos += totalEgreso;
+      if (categoria === "Materias primas") {
+        resultados.get(mes).materiasPrimas += totalEgreso;
+      }
     }
   }
   
@@ -170,7 +175,7 @@ function Resultados() {
     var mes = fechaVenta.getFullYear() + "." + (fechaVenta.getMonth() + 1);
     var costoVenta = Number(ventasData[i][22]); // Considerando que el costo de venta está en la columna 22 de la hoja "Ventas"
     if (!isNaN(costoVenta)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0 });
+      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0 });
       resultados.get(mes).egresos += costoVenta;
     }
   }
@@ -180,9 +185,11 @@ function Resultados() {
   [...resultados.keys()].sort().forEach(mes => {
     var ingresos = resultados.get(mes).ingresos;
     var egresos = resultados.get(mes).egresos;
+    var materiasPrimas = resultados.get(mes).materiasPrimas;
     resultadosSheet.getRange("A" + row).setValue(mes);
     resultadosSheet.getRange("B" + row).setValue(ingresos);
     resultadosSheet.getRange("C" + row).setValue(egresos);
+    resultadosSheet.getRange("D" + row).setValue(materiasPrimas);
     row++;
   });
 }
