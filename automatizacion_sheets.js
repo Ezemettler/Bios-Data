@@ -35,19 +35,17 @@ function Ventas_CostoVenta() {
 
   // Obteniendo los rangos de las columnas relevantes
   var comisionRange = ventasSheet.getRange("I2:I" + lastRow);
-  var impuestosRange = ventasSheet.getRange("J2:J" + lastRow);
   var costoEnvioRange = ventasSheet.getRange("M2:M" + lastRow);
   var costoVentaRange = ventasSheet.getRange("W2:W" + lastRow);
 
   // Obteniendo los valores de las columnas relevantes
   var comisionValues = comisionRange.getValues();
-  var impuestosValues = impuestosRange.getValues();
   var costoEnvioValues = costoEnvioRange.getValues();
 
   // Calculando el costo de venta para cada fila
   var costoVentaValues = [];
   for (var i = 0; i < lastRow - 1; i++) {
-    var costoVenta = comisionValues[i][0] + impuestosValues[i][0] + costoEnvioValues[i][0];
+    var costoVenta = comisionValues[i][0] + costoEnvioValues[i][0];
     costoVentaValues.push([costoVenta]);
   }
 
@@ -242,11 +240,11 @@ function Resultados() {
   
   // Calcular margen de ganancia
   for (var [mes, data] of resultados) {
-    if (data.ingresos === 0) {
-        data.margenDeGanancia = 0;
-    } else {
-        data.margenDeGanancia = data.resultado / data.ingresos;
-    }
+      if (data.ingresos === 0) {
+          data.margenDeGanancia = 0;
+      } else {
+          data.margenDeGanancia = data.resultado / data.ingresos;
+      }
   }
   
   // Escribir los resultados en la hoja "Resultados" ordenando por mes
