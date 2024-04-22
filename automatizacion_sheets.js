@@ -138,61 +138,111 @@ function Resultados() {
     resultadosSheet.getRange("E1").setValue("Mano de obra");
     resultadosSheet.getRange("F1").setValue("Comisiones");
     resultadosSheet.getRange("G1").setValue("Envíos");
-    resultadosSheet.getRange("H1").setValue("Utilidad bruta"); // Nueva columna para la utilidad bruta
+    resultadosSheet.getRange("H1").setValue("Utilidad bruta");
+    resultadosSheet.getRange("I1").setValue("Costos financieros");
+    resultadosSheet.getRange("J1").setValue("Embalajes");
+    resultadosSheet.getRange("K1").setValue("Equipamientos");
+    resultadosSheet.getRange("L1").setValue("Fijos");
+    resultadosSheet.getRange("M1").setValue("Fletes");
+    resultadosSheet.getRange("N1").setValue("Insumos");
+    resultadosSheet.getRange("O1").setValue("Publicidad");
+    resultadosSheet.getRange("P1").setValue("Servicios");
+    resultadosSheet.getRange("Q1").setValue("Utilidad antes de impuestos");
+    resultadosSheet.getRange("R1").setValue("Impuestos");
+    resultadosSheet.getRange("S1").setValue("Resultado"); 
+    resultadosSheet.getRange("T1").setValue("Margen de Ganancia"); // Nuevo encabezado para Margen de Ganancia
   }
   
   // Limpiar valores anteriores
-  resultadosSheet.getRange("B2:H" + lastRow).clear(); // Ajuste del rango de limpieza
+  resultadosSheet.getRange("B2:T" + lastRow).clear(); // Ajuste del rango de limpieza
   
   // Obtener datos de ventas y egresos
   var ventasData = ventasSheet.getDataRange().getValues();
   var egresosData = egresosSheet.getDataRange().getValues();
   
-  // Calcular ingresos, egresos, materias primas, mano de obra, comisiones, envíos y utilidad bruta para cada mes
+  // Calcular ingresos, egresos, materias primas, mano de obra, comisiones, envíos, utilidad bruta, costos financieros, embalajes, equipamientos, fijos, fletes, insumos, publicidad, servicios, utilidad antes de impuestos, impuestos y resultado para cada mes
   var resultados = new Map();
   for (var i = 1; i < ventasData.length; i++) {
-    var fechaVenta = new Date(ventasData[i][1]); // Considerando que la fecha de venta está en la segunda columna de la hoja "Ventas"
+    var fechaVenta = new Date(ventasData[i][1]); 
     var mes = fechaVenta.getFullYear() + "." + (fechaVenta.getMonth() + 1);
-    var totalVenta = Number(ventasData[i][21]); // Considerando que el total de la venta está en la columna 21 de la hoja "Ventas"
-    var comision = Number(ventasData[i][8]); // Considerando que la comisión está en la columna 8 de la hoja "Ventas"
-    var costoEnvio = Number(ventasData[i][12]); // Considerando que el costo de envío está en la columna 12 de la hoja "Ventas"
+    var totalVenta = Number(ventasData[i][21]); 
+    var comision = Number(ventasData[i][8]); 
+    var costoEnvio = Number(ventasData[i][12]); 
+    var impuestosVenta = Number(ventasData[i][9]); // Obtener el valor de impuestos de la venta
+    var costoVenta = Number(ventasData[i][22]); // Obtener el costo de venta
     if (!isNaN(totalVenta)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0, manoDeObra: 0, comisiones: 0, envios: 0, utilidadBruta: 0 }); // Inicializar utilidad bruta
+      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0, manoDeObra: 0, comisiones: 0, envios: 0, utilidadBruta: 0, costosFinancieros: 0, embalajes: 0, equipamientos: 0, fijos: 0, fletes: 0, insumos: 0, publicidad: 0, servicios: 0, utilidadAntesImpuestos: 0, impuestos: 0, resultado: 0, margenDeGanancia: 0 }); // Agregar margen de ganancia
       resultados.get(mes).ingresos += totalVenta;
       resultados.get(mes).comisiones += comision;
       resultados.get(mes).envios += costoEnvio;
+      resultados.get(mes).impuestos += impuestosVenta; // Agregar impuestos de la venta al total de impuestos del mes
+      resultados.get(mes).egresos += costoVenta; // Sumar el costo de venta a los egresos del mes correspondiente
     }
   }
+
   for (var i = 1; i < egresosData.length; i++) {
-    var fechaEgreso = new Date(egresosData[i][1]); // Considerando que la fecha de pago está en la segunda columna de la hoja "Egresos"
-    var mes = fechaEgreso.getFullYear() + "." + (fechaEgreso.getMonth() + 1);
-    var categoria = egresosData[i][2]; // Considerando que la categoría está en la tercera columna de la hoja "Egresos"
-    var totalEgreso = Number(egresosData[i][4]); // Considerando que el total del egreso está en la columna 4 de la hoja "Egresos"
-    if (!isNaN(totalEgreso)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0, manoDeObra: 0, comisiones: 0, envios: 0, utilidadBruta: 0 }); // Inicializar utilidad bruta
-      resultados.get(mes).egresos += totalEgreso;
-      if (categoria === "Materias primas") {
-        resultados.get(mes).materiasPrimas += totalEgreso;
-      } else if (categoria === "Mano de obra") {
-        resultados.get(mes).manoDeObra += totalEgreso;
+      var fechaEgreso = new Date(egresosData[i][1]); 
+      var mes = fechaEgreso.getFullYear() + "." + (fechaEgreso.getMonth() + 1);
+      var categoria = egresosData[i][2]; 
+      var totalEgreso = Number(egresosData[i][4]); 
+      var impuestosEgreso = Number(egresosData[i][4]); // Obtener el valor total de impuestos de egreso
+      if (!isNaN(totalEgreso)) {
+          if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0, manoDeObra: 0, comisiones: 0, envios: 0, utilidadBruta: 0, costosFinancieros: 0, embalajes: 0, equipamientos: 0, fijos: 0, fletes: 0, insumos: 0, publicidad: 0, servicios: 0, utilidadAntesImpuestos: 0, impuestos: 0, resultado: 0 }); 
+          resultados.get(mes).egresos += totalEgreso;
+          if (categoria === "Materias primas") {
+            resultados.get(mes).materiasPrimas += totalEgreso; // Sumar el valor total de materias primas al mes correspondiente
+          }
+          if (categoria === "Mano de obra") {
+            resultados.get(mes).manoDeObra += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Costos financieros") {
+            resultados.get(mes).costosFinancieros += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Embalajes") {
+            resultados.get(mes).embalajes += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Equipamientos") {
+            resultados.get(mes).equipamientos += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Fijos") {
+            resultados.get(mes).fijos += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Fletes") {
+            resultados.get(mes).fletes += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Insumos") {
+            resultados.get(mes).insumos += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Publicidad") {
+            resultados.get(mes).publicidad += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Servicios") {
+            resultados.get(mes).servicios += totalEgreso; // Sumar el valor total de mano de obra al mes correspondiente
+          }
+          if (categoria === "Impuestos") {
+              resultados.get(mes).impuestos += impuestosEgreso; // Agregar impuestos del egreso al total de impuestos del mes
+          }
       }
-    }
-  }
-  
-  // Sumar costo de venta de la hoja "Ventas" a los egresos
-  for (var i = 1; i < ventasData.length; i++) {
-    var fechaVenta = new Date(ventasData[i][1]);
-    var mes = fechaVenta.getFullYear() + "." + (fechaVenta.getMonth() + 1);
-    var costoEnvio = Number(ventasData[i][12]); // Considerando que el costo de envío está en la columna 12 de la hoja "Ventas"
-    if (!isNaN(costoEnvio)) {
-      if (!resultados.has(mes)) resultados.set(mes, { ingresos: 0, egresos: 0, materiasPrimas: 0, manoDeObra: 0, comisiones: 0, envios: 0, utilidadBruta: 0 }); // Inicializar utilidad bruta
-      resultados.get(mes).envios += costoEnvio;
-    }
   }
   
   // Calcular utilidad bruta
   for (var [mes, data] of resultados) {
     data.utilidadBruta = data.ingresos - data.materiasPrimas - data.manoDeObra - data.comisiones - data.envios;
+  }
+  
+  // Calcular utilidad antes de impuestos
+  for (var [mes, data] of resultados) {
+    data.utilidadAntesImpuestos = data.utilidadBruta - data.costosFinancieros - data.embalajes - data.equipamientos - data.fijos - data.fletes - data.insumos - data.publicidad - data.servicios;
+  }
+  
+  // Calcular resultado
+  for (var [mes, data] of resultados) {
+    data.resultado = data.utilidadAntesImpuestos - data.impuestos;
+  }
+  
+  // Calcular margen de ganancia
+  for (var [mes, data] of resultados) {
+    data.margenDeGanancia = data.resultado / data.ingresos;
   }
   
   // Escribir los resultados en la hoja "Resultados" ordenando por mes
@@ -205,6 +255,18 @@ function Resultados() {
     var comisiones = resultados.get(mes).comisiones;
     var envios = resultados.get(mes).envios;
     var utilidadBruta = resultados.get(mes).utilidadBruta;
+    var costosFinancieros = resultados.get(mes).costosFinancieros;
+    var embalajes = resultados.get(mes).embalajes;
+    var equipamientos = resultados.get(mes).equipamientos;
+    var fijos = resultados.get(mes).fijos;
+    var fletes = resultados.get(mes).fletes;
+    var insumos = resultados.get(mes).insumos;
+    var publicidad = resultados.get(mes).publicidad;
+    var servicios = resultados.get(mes).servicios;
+    var utilidadAntesImpuestos = resultados.get(mes).utilidadAntesImpuestos;
+    var impuestos = resultados.get(mes).impuestos;
+    var resultado = resultados.get(mes).resultado;
+    var margenDeGanancia = resultados.get(mes).margenDeGanancia; // Obtener el margen de ganancia
     resultadosSheet.getRange("A" + row).setValue(mes);
     resultadosSheet.getRange("B" + row).setValue(ingresos);
     resultadosSheet.getRange("C" + row).setValue(egresos);
@@ -212,7 +274,19 @@ function Resultados() {
     resultadosSheet.getRange("E" + row).setValue(manoDeObra);
     resultadosSheet.getRange("F" + row).setValue(comisiones);
     resultadosSheet.getRange("G" + row).setValue(envios);
-    resultadosSheet.getRange("H" + row).setValue(utilidadBruta); // Escribir la utilidad bruta
+    resultadosSheet.getRange("H" + row).setValue(utilidadBruta);
+    resultadosSheet.getRange("I" + row).setValue(costosFinancieros);
+    resultadosSheet.getRange("J" + row).setValue(embalajes);
+    resultadosSheet.getRange("K" + row).setValue(equipamientos);
+    resultadosSheet.getRange("L" + row).setValue(fijos);
+    resultadosSheet.getRange("M" + row).setValue(fletes);
+    resultadosSheet.getRange("N" + row).setValue(insumos);
+    resultadosSheet.getRange("O" + row).setValue(publicidad);
+    resultadosSheet.getRange("P" + row).setValue(servicios);
+    resultadosSheet.getRange("Q" + row).setValue(utilidadAntesImpuestos);
+    resultadosSheet.getRange("R" + row).setValue(impuestos);
+    resultadosSheet.getRange("S" + row).setValue(resultado); 
+    resultadosSheet.getRange("T" + row).setValue(margenDeGanancia); // Escribir el margen de ganancia en la columna correspondiente
     row++;
   });
 }
