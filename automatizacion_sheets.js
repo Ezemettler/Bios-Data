@@ -242,7 +242,11 @@ function Resultados() {
   
   // Calcular margen de ganancia
   for (var [mes, data] of resultados) {
-    data.margenDeGanancia = data.resultado / data.ingresos;
+    if (data.ingresos === 0) {
+        data.margenDeGanancia = 0;
+    } else {
+        data.margenDeGanancia = data.resultado / data.ingresos;
+    }
   }
   
   // Escribir los resultados en la hoja "Resultados" ordenando por mes
